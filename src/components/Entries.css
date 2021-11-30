@@ -1,0 +1,19 @@
+.grid-container {
+  display: grid;
+  grid-template-columns: auto auto auto;
+}
+
+.grid-element {
+  width: 400px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.element-info {
+  display: flex;
+  flex-direction: column;
+  width: 100px;
+  margin-right: auto;
+  margin-left: auto;
+  padding: 10px;
+}
