@@ -13,6 +13,8 @@ const customStyles = {
   },
 };
 
+Modal.setAppElement('#root');
+
 const ConfirmationModal = ({entry, isOpen, setIsOpen}) => {
 
 

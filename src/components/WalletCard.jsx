@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
+import { Button } from 'react-bootstrap';
 
-const WalletCard = () => {
+const WalletCard = ({setConnectedWallet}) => {
   const [userMessage, setUserMessage] = useState(null);
   const [userBalance, setUserBalance] = useState(null);
   const [defaultAccount, setDefaultAccount] = useState(null);
@@ -23,6 +24,7 @@ const WalletCard = () => {
 
   const accountChangeHandler = (newAccount) => {
     setDefaultAccount(newAccount);
+    setConnectedWallet(newAccount);
     getUserBalance(newAccount.toString());
   }
 
@@ -44,16 +46,14 @@ const WalletCard = () => {
   }
 
   return (
-    <div className="walletCard">
-      <h1>Connect to MetaMask</h1>
-      <button onClick={connectWalletHandler}>Connect</button>
-      <div className="accountDisplay">
-        <h3> Address: {defaultAccount}</h3>
-      </div> 
-      <div className="balanceDisplay">
-        <h3> Balance: {userBalance}</h3>
-      </div>
-      {errorMessage}
+    <div>
+      {defaultAccount == null && 
+        <div className="walletCard">
+          <h1>Connect to MetaMask</h1>
+          <Button onClick={connectWalletHandler}>Connect</Button>
+          {errorMessage}
+        </div>
+      }
     </div>
   );
 }
