@@ -27,7 +27,7 @@ const Header = (props) => {
         <Navbar.Brand onClick={homeClicked}>
           {' '}
           <div style={{ paddingLeft: 10 }}>
-            Peoples Nft Experiment
+            CommunityFT
             {/* <img
               alt="Company logo"
               src={`${process.env.REACT_APP_REACT_URL}/checklist.png`}

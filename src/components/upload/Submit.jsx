@@ -1,7 +1,7 @@
 import { create } from 'ipfs-http-client';
 import React, { Component } from 'react';
 import { v4 as guid } from 'uuid';
-import { Card } from 'react-bootstrap';
+import { Card, NavLink } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-modal';
 import Dropzone from '../dropzone/Dropzone';
@@ -21,9 +21,6 @@ const customStyles = {
 };
 
 class Submit extends Component {
-  // const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0')
-  // /* upload the file */
-  // const added = await client.add(file)
 
   constructor(props) {
     super(props);
@@ -37,7 +34,8 @@ class Submit extends Component {
 
     this.state = {
       file: null,
-      title: props.title
+      title: props.title,
+      address: props.address
     };
   }
 
@@ -49,8 +47,15 @@ class Submit extends Component {
   }
 
   async uploadEntry() {
+    if (!this.validForm()) {
+      this.setState({ uploading: false });
+      alert('Error uploading entry');
+      return;
+    }
+
+    const { title, address } = this.state;
     await this.uploadFile()
-      .then(async (url) => this.uploadForm(url))
+      .then(async (url) => this.uploadForm(url, title, address))
       .then(() => {
         this.setState({ uploading: false });
         const { history } = this.props;
@@ -58,29 +63,20 @@ class Submit extends Component {
       })
       .catch((() => {
         this.setState({ uploading: false });
-        // TODO: Have a better error handling method
-        // eslint-disable-next-line no-alert
-        alert('Error uploading documents');
+        alert('Error uploading entry');
       }));
   }
 
   validForm() {
-    const { newReviewFields } = this.props;
-    const { file } = this.state;
-    const form = newReviewFields;
+    const { title, file, address } = this.props;
 
-    return (form.title != null
-      && file !== null);
+    return (
+      title != null &&
+      address != null &&
+      file !== null);
   }
 
   async uploadForm(id, url) {
-    if (!this.validForm()) {
-      // TODO: Have a better error handler
-      // eslint-disable-next-line no-alert
-      alert('One or more fields not filled out');
-      throw Error('Not filled out');
-    }
-
     const form = {
       title: this.state.title,
       ipfs_url: url,
@@ -149,6 +145,7 @@ class Submit extends Component {
             file !== null && 
             <div className="Files">
               <div className="Row">
+                <span style={{marginRight: 'auto', marginLeft: 'auto', fontFamily: 'sans-serif'}}>You're submitting</span>
                 <span className="Filename">{file.name}</span>
               </div>
             </div>
@@ -158,7 +155,7 @@ class Submit extends Component {
         <Modal isOpen={uploading} style={customStyles} contentLabel="WaitModal" ariaHideApp={false}>
           <Card style={{ width: '100%' }}>
             <Card.Body>
-              <Card.Title>Uploading Documents. Please Wait ...</Card.Title>
+              <Card.Title>Uploading submission. Please Wait ...</Card.Title>
             </Card.Body>
           </Card>
         </Modal>

@@ -35,8 +35,8 @@ const Entries = () => {
       {connectedWallet &&
         <div>
           <ConfirmationModal entry={clickedEntry} isOpen={openConfirmation} setIsOpen={setOpenConfirmation}/>
-          <h1> Choose wisely, you can only vote on one design </h1>
-          <h3> Voting is: closed until we have more entries ({entries.length} / 100) </h3>
+          {/*<h1> Choose wisely, you can only vote on one design </h1>*/}
+          <h3> Voting will open when we have all 100 entries ({entries.length} / 100) </h3>
           <div className="grid-container">
             {entries && entries.map((entry, index) => {
               //<Entry entry={entry}/>
