@@ -8,6 +8,7 @@ import Dropzone from '../dropzone/Dropzone';
 import * as submissionApi from '../../api/submissionApi';
 import * as routes from '../../routes/routes';
 import './Submit.css';
+import { Redirect } from 'react-router-dom'
 
 const customStyles = {
   content: {
@@ -26,6 +27,7 @@ class Submit extends Component {
     super(props);
 
     this.onFilesAdded = this.onFilesAdded.bind(this);
+    this.handleChange = this.handleChange.bind(this);
     this.uploadFile = this.uploadFile.bind(this);
     this.uploadFileToIPFS = this.uploadFileToIPFS.bind(this);
     this.uploadEntry = this.uploadEntry.bind(this);
@@ -34,10 +36,15 @@ class Submit extends Component {
 
     this.state = {
       file: null,
-      title: props.title,
-      address: props.address
+      title: null,
+      address: props.address,
     };
   }
+
+  handleChange(event){
+    console.log("setting title", event.target.value)
+    this.setState({ title: event.target.value });
+  };
 
   onFilesAdded(files) {
     console.log(files[0])
@@ -47,6 +54,7 @@ class Submit extends Component {
   }
 
   async uploadEntry() {
+    console.log(this.state.title, this.state.address, "checking if valid form")
     if (!this.validForm()) {
       this.setState({ uploading: false });
       alert('Error uploading entry');
@@ -58,17 +66,18 @@ class Submit extends Component {
       .then(async (url) => this.uploadForm(url, title, address))
       .then(() => {
         this.setState({ uploading: false });
-        const { history } = this.props;
-        history.push(routes.HOME);
+        alert("Your submission was accepted!");
+        window.location = routes.ENTRIES;
       })
-      .catch((() => {
+      .catch(((e) => {
         this.setState({ uploading: false });
         alert('Error uploading entry');
+        throw e;
       }));
   }
 
   validForm() {
-    const { title, file, address } = this.props;
+    const { title, file, address } = this.state;
 
     return (
       title != null &&
@@ -76,13 +85,8 @@ class Submit extends Component {
       file !== null);
   }
 
-  async uploadForm(id, url) {
-    const form = {
-      title: this.state.title,
-      ipfs_url: url,
-    };
-
-    return submissionApi.UploadForm(form, id);
+  async uploadForm(url, title, address) {
+    return submissionApi.UploadForm(url, title, address);
   }
 
   async uploadFile(id) {
@@ -91,6 +95,7 @@ class Submit extends Component {
 
     try {
       var url = await this.uploadFileToIPFS(file, id);
+      console.log("URL", url)
       this.setState({ uploading: false });
       return url;
     } catch (e) {
@@ -106,7 +111,7 @@ class Submit extends Component {
   uploadFileToIPFS(file, id) {
     // TODO: RequestApi will need to return the ipfs url
     return new Promise((resolve, reject) => submissionApi.UploadFile(file, id)
-      .then(() => resolve())
+      .then((url) => resolve(url))
       .catch((err) => {
         reject(err);
         throw err;
@@ -133,32 +138,42 @@ class Submit extends Component {
   render() {
     const { uploading, file, successfullUploaded } = this.state;
     return (
-      <div className="Upload">
-        <div className="Content">
-          <div style={{ paddingLeft: '5px' }}>
-            <Dropzone
-              onFilesAdded={this.onFilesAdded}
-              disabled={uploading || successfullUploaded}
-            />
-          </div>
-          {
-            file !== null && 
-            <div className="Files">
-              <div className="Row">
-                <span style={{marginRight: 'auto', marginLeft: 'auto', fontFamily: 'sans-serif'}}>You're submitting</span>
-                <span className="Filename">{file.name}</span>
-              </div>
+      <div style={{ margin: 'auto', textAlign: 'left' }}>
+        <form>
+          <h2 style={{ textAlign: 'center', paddingBottom: 25 }}>New Submission</h2>
+          <fieldset style={{ display: 'flex', flexDirection: 'column' }}>
+            <label>
+              <input name="name" onChange={this.handleChange} placeholder="Title" style={{ width: '100%'}}/>
+            </label>
+          </fieldset>
+        </form>
+        <div className="Upload">
+          <div className="Content">
+            <div style={{ paddingLeft: '5px' }}>
+              <Dropzone
+                onFilesAdded={this.onFilesAdded}
+                disabled={uploading || successfullUploaded}
+              />
             </div>
-          }
+            {
+              file !== null && 
+              <div className="Files">
+                <div className="Row">
+                  <span style={{marginRight: 'auto', marginLeft: 'auto', fontFamily: 'sans-serif'}}>You're submitting</span>
+                  <span className="Filename">{file.name}</span>
+                </div>
+              </div>
+            }
+          </div>
+          <div className="Actions">{this.renderActions()}</div>
+          <Modal isOpen={uploading} style={customStyles} contentLabel="WaitModal" ariaHideApp={false}>
+            <Card style={{ width: '100%' }}>
+              <Card.Body>
+                <Card.Title>Uploading submission. Please Wait ...</Card.Title>
+              </Card.Body>
+            </Card>
+          </Modal>
         </div>
-        <div className="Actions">{this.renderActions()}</div>
-        <Modal isOpen={uploading} style={customStyles} contentLabel="WaitModal" ariaHideApp={false}>
-          <Card style={{ width: '100%' }}>
-            <Card.Body>
-              <Card.Title>Uploading submission. Please Wait ...</Card.Title>
-            </Card.Body>
-          </Card>
-        </Modal>
       </div>
     );
   }

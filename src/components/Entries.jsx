@@ -42,7 +42,7 @@ const Entries = () => {
               //<Entry entry={entry}/>
               return (
                 <div style={{display: 'flex', flexDirection: 'column',   border: "1px solid rgba(0, 0, 0, 0.8)"}}>
-                  <img className="grid-element" src={"https://ipfs.io/" + entry.url}/>
+                  <img className="grid-element" src={entry.properties.image.description}/>
                   <div className="element-info">
                     Entry: {index + 1}
                     <Button onClick={voteForEntryClicked(index + 1)}> Vote </Button>
