@@ -29,6 +29,11 @@ const Entries = () => {
     }
   }
 
+  var entriesView = [];
+  if (entries != null) {
+    entriesView = entries.sort((a, b) => a.votes > b.votes ? 1 : -1);
+  }
+
   return (
     <div>
       <WalletCard setConnectedWallet={setConnectedWallet}/>
@@ -36,16 +41,18 @@ const Entries = () => {
         <div>
           <ConfirmationModal entry={clickedEntry} isOpen={openConfirmation} setIsOpen={setOpenConfirmation}/>
           {/*<h1> Choose wisely, you can only vote on one design </h1>*/}
-          <h3> Voting will open when we have all 100 entries ({entries.length} / 100) </h3>
+          <h3> Voting will open when we have all 1,000 entries ({(entries?.length || 0)} / 1,000) </h3>
           <div className="grid-container">
-            {entries && entries.map((entry, index) => {
+            {entriesView && entriesView.map((entry, index) => {
               //<Entry entry={entry}/>
               return (
-                <div style={{display: 'flex', flexDirection: 'column',   border: "1px solid rgba(0, 0, 0, 0.8)"}}>
-                  <img className="grid-element" src={entry.properties.image.description}/>
+                <div style={{display: 'flex', flexDirection: 'column',   border: "1px solid rgba(0, 0, 0, 0.8)", borderRadius: 20, padding: 20}}>
+                  <h2> <b>{entry.name }</b> </h2>
+                  <img className="grid-element" src={entry.image}/>
                   <div className="element-info">
-                    Entry: {index + 1}
-                    <Button onClick={voteForEntryClicked(index + 1)}> Vote </Button>
+                    TokenId: {index + 1} <br/>
+                    Votes: { entry.votes }
+                    <Button disabled onClick={voteForEntryClicked(index + 1)}> Vote </Button>
                   </div>
                 </div>)
             })}
